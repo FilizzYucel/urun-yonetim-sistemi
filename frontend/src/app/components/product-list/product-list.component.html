@@ -1,0 +1,118 @@
+<div class="container">
+  <h1>🛍️ Ürün Yönetimi</h1>
+
+  <!-- Başarı ve Hata Mesajları -->
+  @if (successMessage) {
+    <div class="alert success">{{ successMessage }}</div>
+  }
+  @if (error) {
+    <div class="alert error">{{ error }}</div>
+  }
+
+  <!-- Üst Toolbar -->
+  <div class="toolbar">
+    <button class="btn btn-primary" (click)="openAddForm()">
+      ➕ Yeni Ürün Ekle
+    </button>
+    
+    <div class="filter-group">
+      <label>Kategori Filtresi:</label>
+      <select [(ngModel)]="selectedCategoryId" (change)="filterByCategory()">
+        <option [ngValue]="null">Tüm Kategoriler</option>
+        @for (category of categories; track category.id) {
+          <option [ngValue]="category.id">{{ category.name }}</option>
+        }
+      </select>
+      @if (selectedCategoryId) {
+        <button class="btn btn-secondary" (click)="clearFilter()">Filtreyi Temizle</button>
+      }
+    </div>
+  </div>
+
+  <!-- Yükleniyor -->
+  @if (loading) {
+    <div class="loading">⏳ Yükleniyor...</div>
+  }
+
+  <!-- Ürün Listesi -->
+  @if (!loading && products.length > 0) {
+    <div class="product-grid">
+      @for (product of products; track product.id) {
+        <div class="product-card">
+          <div class="product-header">
+            <h3>{{ product.name }}</h3>
+            <span class="category-badge">{{ product.category.name }}</span>
+          </div>
+          <p class="description">{{ product.description }}</p>
+          <div class="product-details">
+            <span class="price">💰 {{ product.price }} TL</span>
+            <span class="stock" [class.low-stock]="product.stock < 5">
+              📦 Stok: {{ product.stock }}
+            </span>
+          </div>
+          <div class="product-actions">
+            <button class="btn btn-edit" (click)="openEditForm(product)">✏️ Düzenle</button>
+            <button class="btn btn-delete" (click)="deleteProduct(product.id)">🗑️ Sil</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Ürün Yok -->
+  @if (!loading && products.length === 0) {
+    <div class="empty-state">
+      <p>📭 Henüz ürün bulunmuyor.</p>
+      <button class="btn btn-primary" (click)="openAddForm()">İlk ürünü ekle</button>
+    </div>
+  }
+
+  <!-- Ürün Formu Modal -->
+  @if (showForm) {
+    <div class="modal-overlay" (click)="closeForm()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h2>{{ editMode ? '✏️ Ürün Düzenle' : '➕ Yeni Ürün' }}</h2>
+        
+        <form (ngSubmit)="saveProduct()">
+          <div class="form-group">
+            <label>Ürün Adı *</label>
+            <input type="text" [(ngModel)]="currentProduct.name" name="name" required>
+          </div>
+
+          <div class="form-group">
+            <label>Açıklama</label>
+            <textarea [(ngModel)]="currentProduct.description" name="description" rows="3"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Fiyat (TL) *</label>
+              <input type="number" [(ngModel)]="currentProduct.price" name="price" min="0" step="0.01" required>
+            </div>
+
+            <div class="form-group">
+              <label>Stok *</label>
+              <input type="number" [(ngModel)]="currentProduct.stock" name="stock" min="0" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Kategori *</label>
+            <select [(ngModel)]="currentProduct.categoryId" name="categoryId" required>
+              @for (category of categories; track category.id) {
+                <option [ngValue]="category.id">{{ category.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="closeForm()">İptal</button>
+            <button type="submit" class="btn btn-primary">
+              {{ editMode ? 'Güncelle' : 'Kaydet' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

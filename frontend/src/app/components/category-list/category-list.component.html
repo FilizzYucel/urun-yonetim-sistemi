@@ -1,0 +1,73 @@
+<div class="container">
+  <h1>📁 Kategori Yönetimi</h1>
+
+  @if (successMessage) {
+    <div class="alert success">{{ successMessage }}</div>
+  }
+  @if (error) {
+    <div class="alert error">{{ error }}</div>
+  }
+
+  <div class="toolbar">
+    <button class="btn btn-primary" (click)="openAddForm()">
+      ➕ Yeni Kategori Ekle
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="loading">⏳ Yükleniyor...</div>
+  }
+
+  @if (!loading && categories.length > 0) {
+    <div class="category-list">
+      @for (category of categories; track category.id) {
+        <div class="category-card">
+          <div class="category-info">
+            <h3>{{ category.name }}</h3>
+            @if (category.description) {
+              <p>{{ category.description }}</p>
+            }
+          </div>
+          <div class="category-actions">
+            <button class="btn btn-edit" (click)="openEditForm(category)">✏️</button>
+            <button class="btn btn-delete" (click)="deleteCategory(category.id)">🗑️</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (!loading && categories.length === 0) {
+    <div class="empty-state">
+      <p>📭 Henüz kategori bulunmuyor.</p>
+      <button class="btn btn-primary" (click)="openAddForm()">İlk kategoriyi ekle</button>
+    </div>
+  }
+
+  @if (showForm) {
+    <div class="modal-overlay" (click)="closeForm()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h2>{{ editMode ? '✏️ Kategori Düzenle' : '➕ Yeni Kategori' }}</h2>
+        
+        <form (ngSubmit)="saveCategory()">
+          <div class="form-group">
+            <label>Kategori Adı *</label>
+            <input type="text" [(ngModel)]="currentCategory.name" name="name" required>
+          </div>
+
+          <div class="form-group">
+            <label>Açıklama</label>
+            <textarea [(ngModel)]="currentCategory.description" name="description" rows="3"></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="closeForm()">İptal</button>
+            <button type="submit" class="btn btn-primary">
+              {{ editMode ? 'Güncelle' : 'Kaydet' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>
